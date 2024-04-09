@@ -1,0 +1,46 @@
+version: "3"
+services:
+  zookeeper-1:
+    container_name: zookeeper-1
+    image: zookeeper
+    hostname: zookeeper-1
+    ports:
+      - "2181:2181"
+      - "2888:2888"
+      - "3888:3888"
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_PEER_PORT: 2888
+      ZOOKEEPER_LEADER_PORT: 3888
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOO_MY_ID: 1
+      ZOO_STANDALONE_ENABLED: true
+      ZOO_ADMINSERVER_ENABLED: true
+      ZOOKEEPER_SERVERS: "localhost:2888:3888;zookeeper-1:12888:13888;zookeeper-2:22888:23888"
+
+  kafka:
+    container_name: kafka
+    image: ${KAFKA_IMAGE}
+    ports:
+      - "9092:9092"
+      - "19092:19092"
+    environment:
+      ZOOKEEPER: zookeeper-1:2181
+      ADVERTISED_LISTENER: localhost
+    depends_on:
+      - zookeeper-1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
+#  kafka-admin-boot:
+#    image: kafka-admin-boot
+#    ports:
+#      - '8080:8080'
+#    environment:
+#      KAFKA_BOOTSTRAP: kafka:9092
+#    depends_on:
+#      - kafka
