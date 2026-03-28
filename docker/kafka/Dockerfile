@@ -12,7 +12,7 @@ ENV PATH=${PATH}:${KAFKA_HOME}/bin
 COPY kafka_$SCALA_VERSION-$KAFKA_VERSION.tgz /tmp/
 COPY start-kafka.sh /tmp/
 
-RUN apk add openjdk11 docker bash
+RUN apk add openjdk21 docker bash
 
 RUN    chmod a+x /tmp/*.sh \
     && mv /tmp/start-kafka.sh /usr/bin \
