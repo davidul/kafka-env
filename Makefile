@@ -1,4 +1,3 @@
-include docker/.env
 
 up:
 	$(MAKE) -C docker up
