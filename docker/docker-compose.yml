@@ -1,7 +1,7 @@
 services:
   zookeeper-1:
     container_name: zookeeper-1
-    image: zookeeper
+    image: zookeeper:3.8
     hostname: zookeeper-1
     restart: unless-stopped
     ports:
@@ -21,35 +21,52 @@ services:
       timeout: 5s
       retries: 5
       start_period: 15s
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-logs:/var/lib/zookeeper/log
     networks:
       - kafka-net
 
   kafka:
-    container_name: ${KAFKA_CONTAINER_NAME}
-    image: ${KAFKA_IMAGE}
+    container_name: ${KAFKA_CONTAINER_NAME:-kafka}
+    image: ${KAFKA_IMAGE:-bitnami/kafka:3.6}
     restart: unless-stopped
     ports:
       - "9092:9092"
       - "19092:19092"
     environment:
-      ZOOKEEPER: zookeeper-1:2181
-      ADVERTISED_LISTENER: localhost
-      EXTERNAL_PORT: 19092
+      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper-1:2181
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:19092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_CFG_NUM_PARTITIONS: 3
     depends_on:
       zookeeper-1:
         condition: service_healthy
+    volumes:
+      - kafka-data:/var/lib/kafka/data
     networks:
       - kafka-net
 
 #  kafka-admin-boot:
-#    image: kafka-admin-boot
+#    image: ghcr.io/zalando-incubator/kafka-admin-boot:latest
+#    container_name: kafka-admin-boot
 #    ports:
 #      - '8080:8080'
 #    environment:
-#      KAFKA_BOOTSTRAP: kafka:9092
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092,localhost:19092
 #    depends_on:
 #      - kafka
 
 networks:
   kafka-net:
     driver: bridge
+
+volumes:
+  zookeeper-data:
+    name: ${ZOOKEEPER_DATA_VOLUME:-zookeeper-data}
+  zookeeper-logs:
+    name: ${ZOOKEEPER_LOGS_VOLUME:-zookeeper-logs}
+  kafka-data:
+    name: ${KAFKA_DATA_VOLUME:-kafka-data}
