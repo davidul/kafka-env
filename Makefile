@@ -1,3 +1,4 @@
+include docker/.env
 
 up:
 	$(MAKE) -C docker up
@@ -13,3 +14,6 @@ cleanup:
 
 download-kafka:
 	$(MAKE) -C docker download-kafka
+
+list-queues:
+	docker exec -it ${KAFKA_CONTAINER_NAME} /opt/kafka/bin/kafka-topics.sh --list --bootstrap-server 172.18.0.3:9092

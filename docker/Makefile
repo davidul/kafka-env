@@ -13,7 +13,7 @@ up: build-kafka
 	docker compose up
 
 up-raft: build-kafka-raft
-	docker run -d --name kafka-raft -p 9092:9092 -p 9093:9093 $(KAFKA_RAFT_IMAGE)
+	docker compose -f docker-compose-kraft.yml up -d
 
 down:
 	docker compose down

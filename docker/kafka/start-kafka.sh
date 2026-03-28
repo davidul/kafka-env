@@ -1,18 +1,16 @@
 #!/bin/sh
 
-#ipaddress=$(eval "route -n | awk '/UG[ \t]/{print $$2}'")
-ipaddress=$(eval "ifconfig eth0 | grep -w 'inet' | tr -s ' ' | cut -d' ' -f3| cut -d':' -f2")
-#092/tcp -> 0.0.0.0:50830
-dockerport=$(docker port ${HOSTNAME} | cut -d":" -f2)
+ipaddress=$(ip -4 addr show eth0 | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
+external_port=${EXTERNAL_PORT:-19092}
 
-echo $dockerport
-echo $ZOOKEEPER
+echo "IP Address : $ipaddress"
+echo "ZooKeeper  : $ZOOKEEPER"
+echo "Ext. Port  : $external_port"
 
 cat <<EOF > $KAFKA_HOME/config/server.properties
-broker.id.generation.enable=true
-#control.plane.listener.name=INTERNAL
+broker.id=1
 listeners=INTERNAL://${ipaddress}:9092,EXTERNAL://${ipaddress}:19092
-advertised.listeners=INTERNAL://${ipaddress}:9092,EXTERNAL://${ADVERTISED_LISTENER}:${dockerport}
+advertised.listeners=INTERNAL://${ipaddress}:9092,EXTERNAL://${ADVERTISED_LISTENER}:${external_port}
 listener.security.protocol.map=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
 inter.broker.listener.name=INTERNAL
 num.network.threads=3
