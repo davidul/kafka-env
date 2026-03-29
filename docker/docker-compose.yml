@@ -35,12 +35,9 @@ services:
       - "9092:9092"
       - "19092:19092"
     environment:
-      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper-1:2181
-      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:19092
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
-      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_CFG_NUM_PARTITIONS: 3
+      ZOOKEEPER: zookeeper-1:2181          # used by start-kafka.sh → zookeeper.connect
+      ADVERTISED_LISTENER: localhost        # used by start-kafka.sh → advertised.listeners EXTERNAL host
+      EXTERNAL_PORT: 19092
     depends_on:
       zookeeper-1:
         condition: service_healthy
